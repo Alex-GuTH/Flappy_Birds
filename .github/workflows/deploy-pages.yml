@@ -36,6 +36,15 @@ jobs:
         if: ${{ hashFiles('requirements.txt') != '' }}
         run: pip install -r requirements.txt
 
+      - name: Download CJK font for web build
+        shell: bash
+        run: |
+          mkdir -p assets/fonts
+          if [ ! -f assets/fonts/NotoSansCJKsc-Regular.otf ]; then
+            curl -L -o assets/fonts/NotoSansCJKsc-Regular.otf \
+              https://github.com/notofonts/noto-cjk/raw/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf
+          fi
+
       - name: Build web version
         run: python -m pygbag --build main.py
 

@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+from ui.font_utils import load_cjk_font
 
 # 主菜单
 class MainMenu:
@@ -45,18 +46,10 @@ class MainMenu:
 
     def load_fonts(self):
         """加载字体"""
-        try:
-            # 尝试使用系统字体
-            self.title_font = pygame.font.SysFont("SimHei", 72)
-            self.menu_font = pygame.font.SysFont("SimHei", 48)
-            self.info_font = pygame.font.SysFont("SimHei", 32)
-            self.tips_font = pygame.font.SysFont("SimHei", 20)
-        except:
-            # 如果失败，则使用默认字体
-            self.title_font=pygame.font.Font(None,72)
-            self.menu_font=pygame.font.Font(None,48)
-            self.info_font=pygame.font.Font(None,32)
-            self.tips_font = pygame.font.Font(None, 20)
+        self.title_font = load_cjk_font(72)
+        self.menu_font = load_cjk_font(48)
+        self.info_font = load_cjk_font(32)
+        self.tips_font = load_cjk_font(20)
 
     def update(self,dt):
         """更新小鸟动画位置"""

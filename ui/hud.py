@@ -3,6 +3,7 @@
 """
 
 import pygame
+from ui.font_utils import load_cjk_font
 
 class GameHUD:
     def __init__(self, screen_width):
@@ -16,16 +17,9 @@ class GameHUD:
         self.background_color = (30, 30, 30, 180)
         
         # 字体设置
-        try:
-            # 尝试使用系统字体
-            self.score_font = pygame.font.SysFont("SimHei", 40)
-            self.info_font = pygame.font.SysFont("SimHei", 30)
-            self.small_font = pygame.font.SysFont("SimHei", 20)
-        except:
-            # 如果失败，则使用默认字体
-            self.score_font=pygame.font.Font(None,40)
-            self.info_font=pygame.font.Font(None,30)
-            self.small_font = pygame.font.Font(None, 20)
+        self.score_font = load_cjk_font(40)
+        self.info_font = load_cjk_font(30)
+        self.small_font = load_cjk_font(20)
         
         # HUD位置
         self.hud_height = 130
