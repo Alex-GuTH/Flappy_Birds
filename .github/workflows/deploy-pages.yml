@@ -45,22 +45,37 @@ jobs:
               https://github.com/notofonts/noto-cjk/raw/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf
           fi
 
+      - name: Prepare minimal web source
+        shell: bash
+        run: |
+          rm -rf websrc
+          mkdir -p websrc
+          cp main.py websrc/
+          cp -r game websrc/
+          cp -r ui websrc/
+          if [ -d assets ]; then
+            cp -r assets websrc/
+          fi
+
       - name: Build web version
-        run: python -m pygbag --build main.py
+        shell: bash
+        run: |
+          cd websrc
+          python -m pygbag --build main.py
 
       - name: Show build tree
         shell: bash
         run: |
           echo "Build directory snapshot:"
-          find build -maxdepth 4 -type f | head -n 200
+          find websrc/build -maxdepth 4 -type f | head -n 200
 
       - name: Resolve output directory
         shell: bash
         run: |
-          if [ -d "build/web" ]; then
-            echo "WEB_DIR=build/web" >> "$GITHUB_ENV"
-          elif [ -d "build" ]; then
-            INDEX_PATH=$(find build -name "index.html" | head -n 1)
+          if [ -d "websrc/build/web" ]; then
+            echo "WEB_DIR=websrc/build/web" >> "$GITHUB_ENV"
+          elif [ -d "websrc/build" ]; then
+            INDEX_PATH=$(find websrc/build -name "index.html" | head -n 1)
             if [ -z "$INDEX_PATH" ]; then
               echo "No index.html found under build output"
               exit 1
