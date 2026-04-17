@@ -17,6 +17,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,8 +32,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install pygbag
 
+      - name: Install project dependencies
+        if: ${{ hashFiles('requirements.txt') != '' }}
+        run: pip install -r requirements.txt
+
       - name: Build web version
         run: python -m pygbag --build main.py
+
+      - name: Show build tree
+        shell: bash
+        run: |
+          echo "Build directory snapshot:"
+          find build -maxdepth 4 -type f | head -n 200
 
       - name: Resolve output directory
         shell: bash
