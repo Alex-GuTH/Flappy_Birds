@@ -1,0 +1,22 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+
+# IDE and editor settings
+.idea/
+.vscode/
+
+# Build artifacts (for web packaging/deployment)
+build/
+dist/
+site/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
