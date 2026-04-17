@@ -1,6 +1,7 @@
 import pygame
 import random
 import time
+import asyncio
 from game.bird import Bird
 from game.pipe import PipeManager
 from game.powerup import PowerupManager
@@ -11,7 +12,7 @@ from game.collision import CollisionSystem
 # 使用当前时间作为随机数种子，确保每次运行的随机性
 random.seed(time.time())
 
-def game_loop(screen, screen_width, screen_height, game_mode):
+async def game_loop(screen, screen_width, screen_height, game_mode):
     """游戏主循环"""
     pygame.display.set_caption("Flappy Bird - 游戏中")
 
@@ -141,10 +142,11 @@ def game_loop(screen, screen_width, screen_height, game_mode):
         hud.draw(screen, player1_score, player2_score, player1_alive, player2_alive, game_time)
 
         pygame.display.flip()
+        await asyncio.sleep(0)
 
     return True
 
-def main():
+async def main():
     pygame.init()
     random.seed(time.time())
     screen_width = 800
@@ -195,9 +197,10 @@ def main():
             main_menu.update(dt)
             main_menu.draw(screen)
             pygame.display.flip()
+            await asyncio.sleep(0)
 
         elif game_state == "playing":
-            continue_running = game_loop(screen, screen_width, screen_height, game_mode)
+            continue_running = await game_loop(screen, screen_width, screen_height, game_mode)
             if continue_running:
                 game_state = "menu" # 游戏结束后返回菜单
             else:
@@ -206,5 +209,5 @@ def main():
     pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
 

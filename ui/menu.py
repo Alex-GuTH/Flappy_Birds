@@ -1,4 +1,6 @@
 import pygame
+import random
+import math
 
 # 主菜单
 class MainMenu:
@@ -28,6 +30,18 @@ class MainMenu:
         self.bird_direction=1
         self.bird_speed=100
         self.animation_time=0
+
+        # 预生成星空数据，避免每帧重复创建高开销对象
+        star_rng = random.Random(42)
+        self.stars = []
+        for _ in range(100):
+            self.stars.append({
+                "x": star_rng.randint(0, self.screen_width),
+                "y": star_rng.randint(0, self.screen_height - 200),
+                "size": star_rng.randint(1, 3),
+                "base": star_rng.randint(150, 255),
+                "phase": star_rng.random() * 2 * math.pi,
+            })
 
     def load_fonts(self):
         """加载字体"""
@@ -99,25 +113,13 @@ class MainMenu:
             screen.blit(tip_surface,tip_rect)
     def draw_stars(self,screen):
         """绘制星空背景"""
-        import random
-        import math
-        random.seed(42)
-        for _ in range(100):
-            x=random.randint(0,self.screen_width)
-            y=random.randint(0,self.screen_height-200)
-            size=random.randint(1,3)
-            brightness=random.randint(150,255)
-
-            # 闪烁效果
-            pulse = (pygame.time.get_ticks() % 2000) / 2000.0
-            # 使用sin函数创建一个从0到1再回到0的平滑循环
-            brightness_multiplier = (math.sin(pulse * 2 * math.pi) + 1) / 2
-            # 将亮度范围从0.5调整到1.0
-            final_brightness = 0.5 + 0.5 * brightness_multiplier
-            alpha = brightness * final_brightness
-            star_surf=pygame.Surface((size*2,size*2),pygame.SRCALPHA)
-            pygame.draw.circle(star_surf,(255,255,255,alpha),(size,size),size)
-            screen.blit(star_surf,(x-size,y-size))
+        t = pygame.time.get_ticks() / 1000.0
+        for star in self.stars:
+            # 给每颗星不同相位，减少同步闪烁造成的视觉噪声
+            twinkle = 0.65 + 0.35 * (math.sin(t * 2.4 + star["phase"]) + 1) / 2
+            brightness = int(star["base"] * twinkle)
+            color = (brightness, brightness, brightness)
+            pygame.draw.circle(screen, color, (star["x"], star["y"]), star["size"])
 
     def draw_animated_bird(self,screen):
         """绘制飞行中的小鸟"""
