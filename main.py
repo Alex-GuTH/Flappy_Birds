@@ -7,7 +7,6 @@ from game.powerup import PowerupManager
 from ui.hud import GameHUD
 from ui.menu import MainMenu
 from game.collision import CollisionSystem
-import time
 
 # 使用当前时间作为随机数种子，确保每次运行的随机性
 random.seed(time.time())
@@ -41,6 +40,8 @@ def game_loop(screen, screen_width, screen_height, game_mode):
     # 游戏变量
     pipe_spawn_timer = 0
     pipe_spawn_interval = 2.0  # 管道生成间隔
+    all_dead_start_time = None
+    game_over_delay = 3.0
 
     clock = pygame.time.Clock()
     running = True
@@ -53,8 +54,7 @@ def game_loop(screen, screen_width, screen_height, game_mode):
         # 事件处理
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                return False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False  # 返回主菜单
@@ -85,8 +85,12 @@ def game_loop(screen, screen_width, screen_height, game_mode):
                         break # 每次只为一个管道计分
 
         if all_players_dead:
-            time.sleep(3) # 短暂延迟后返回菜单
-            running = False
+            if all_dead_start_time is None:
+                all_dead_start_time = time.time()
+            elif time.time() - all_dead_start_time >= game_over_delay:
+                running = False
+        else:
+            all_dead_start_time = None
 
         # 更新管道
         pipe_spawn_timer += dt
@@ -138,6 +142,8 @@ def game_loop(screen, screen_width, screen_height, game_mode):
 
         pygame.display.flip()
 
+    return True
+
 def main():
     pygame.init()
     random.seed(time.time())
@@ -151,14 +157,15 @@ def main():
 
     clock = pygame.time.Clock()
 
-    while True:
+    running = True
+    while running:
         dt = clock.tick(60) / 1000.0
         
         # Event handling loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                running = False
+                break
 
             if game_state == "menu":
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -167,8 +174,8 @@ def main():
                         game_state = "playing"
                         game_mode = clicked_action
                     elif clicked_action == "quit_game":
-                        pygame.quit()
-                        exit()
+                        running = False
+                        break
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_1:
                         game_state = "playing"
@@ -177,8 +184,11 @@ def main():
                         game_state = "playing"
                         game_mode = "two_player"
                     elif event.key == pygame.K_q:
-                        pygame.quit()
-                        exit()
+                        running = False
+                        break
+
+        if not running:
+            break
 
         if game_state == "menu":
             pygame.display.set_caption("Flappy Bird - 主菜单")
@@ -187,8 +197,13 @@ def main():
             pygame.display.flip()
 
         elif game_state == "playing":
-            game_loop(screen, screen_width, screen_height, game_mode)
-            game_state = "menu" # 游戏结束后返回菜单
+            continue_running = game_loop(screen, screen_width, screen_height, game_mode)
+            if continue_running:
+                game_state = "menu" # 游戏结束后返回菜单
+            else:
+                running = False
+
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
